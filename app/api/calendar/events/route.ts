@@ -1,5 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server'
 
+// Force dynamic rendering to avoid build-time issues
+export const dynamic = 'force-dynamic'
+
 export async function GET(request: NextRequest) {
   // Skip everything in demo mode to avoid build-time issues
   if (process.env.DEMO_MODE === 'true') {
