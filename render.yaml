@@ -11,7 +11,7 @@ services:
       - key: DEMO_MODE
         value: "true"
       - key: NEXTAUTH_URL
-        value: https://post-meeting-social-media-generator-rxkf.onrender.com
+        value: https://post-meeting-social-media-generator-4.onrender.com
       - key: NEXTAUTH_SECRET
         value: "demo-secret-key-for-presentation-only-32-chars"
       - key: DATABASE_URL
