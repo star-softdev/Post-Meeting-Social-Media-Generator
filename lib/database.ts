@@ -14,16 +14,16 @@ class ExtendedPrismaClient extends PrismaClient {
       ],
     })
 
-    // Log slow queries
-    this.$on('query', (e: any) => {
-      if (e.duration > 1000) {
-        log.performance.slowQuery(e.query, e.duration)
-      }
-    })
+    // Note: Prisma event logging disabled due to type issues
+    // this.$on('query', (e: any) => {
+    //   if (e.duration > 1000) {
+    //     log.performance.slowQuery(e.query, e.duration)
+    //   }
+    // })
 
-    this.$on('error', (e: any) => {
-      log.error('Database error', e)
-    })
+    // this.$on('error', (e: any) => {
+    //   log.error('Database error', e)
+    // })
   }
 
   // Custom methods for common operations
@@ -303,10 +303,6 @@ class ExtendedPrismaClient extends PrismaClient {
           userId,
           botJoinMinutesBefore: 5,
           defaultAutomationEnabled: true,
-          emailNotifications: true,
-          socialMediaNotifications: true,
-          timezone: 'UTC',
-          language: 'en',
         },
       })
     }

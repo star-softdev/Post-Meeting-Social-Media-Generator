@@ -1,8 +1,18 @@
 import OpenAI from 'openai'
 
-const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY,
-})
+let openai: OpenAI | null = null
+
+function getOpenAI(): OpenAI {
+  if (!openai) {
+    if (!process.env.OPENAI_API_KEY) {
+      throw new Error('OPENAI_API_KEY environment variable is required')
+    }
+    openai = new OpenAI({
+      apiKey: process.env.OPENAI_API_KEY,
+    })
+  }
+  return openai
+}
 
 export async function generateFollowUpEmail(transcript: string, meetingTitle: string): Promise<string> {
   const prompt = `
@@ -22,7 +32,7 @@ Please generate a concise, professional follow-up email that:
 Return only the email content without subject line.
 `
 
-  const response = await openai.chat.completions.create({
+  const response = await getOpenAI().chat.completions.create({
     model: "gpt-4",
     messages: [{ role: "user", content: prompt }],
     max_tokens: 500,
@@ -53,7 +63,7 @@ ${automation.example ? `Example: ${automation.example}` : ''}
 Please generate a social media post that follows the automation instructions exactly.
 `
 
-  const response = await openai.chat.completions.create({
+  const response = await getOpenAI().chat.completions.create({
     model: "gpt-4",
     messages: [{ role: "user", content: prompt }],
     max_tokens: 300,

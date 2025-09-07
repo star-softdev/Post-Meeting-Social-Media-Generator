@@ -82,6 +82,9 @@ export class GoogleCalendarClient extends BaseApiClient {
 // OpenAI API client
 export class OpenAIClient extends BaseApiClient {
   constructor() {
+    if (!env.OPENAI_API_KEY) {
+      throw new Error('OPENAI_API_KEY is required')
+    }
     super(apiEndpoints.openai.base, env.OPENAI_API_KEY)
   }
 

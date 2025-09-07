@@ -10,7 +10,7 @@ export interface AuditEvent {
   timestamp: Date
   ipAddress?: string | null
   userAgent?: string | null
-  metadata?: Record<string, any>
+  metadata?: any
   result: 'SUCCESS' | 'FAILURE'
   errorMessage?: string | null
 }
@@ -66,7 +66,7 @@ export class AuditLogger {
           timestamp: event.timestamp,
           ipAddress: event.ipAddress,
           userAgent: event.userAgent,
-          metadata: event.metadata,
+          metadata: event.metadata as any,
           result: event.result,
           errorMessage: event.errorMessage
         }))
@@ -114,9 +114,9 @@ export class AuditLogger {
       period: { startDate, endDate },
       totalEvents: events.length,
       successRate: events.filter((e: any) => e.result === 'SUCCESS').length / events.length,
-      topActions: this.getTopActions(events),
-      topResources: this.getTopResources(events),
-      events
+      topActions: this.getTopActions(events as AuditEvent[]),
+      topResources: this.getTopResources(events as AuditEvent[]),
+      events: events as AuditEvent[]
     }
   }
 

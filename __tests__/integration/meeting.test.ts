@@ -57,7 +57,8 @@ describe('Meeting API Integration Tests', () => {
           content: 'Test social media post',
           platform: 'linkedin',
           status: 'draft',
-          meetingId: meeting.id
+          meetingId: meeting.id,
+          userId: user.id
         }
       })
 

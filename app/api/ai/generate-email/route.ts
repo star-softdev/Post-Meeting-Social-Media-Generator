@@ -2,12 +2,14 @@ import { NextRequest, NextResponse } from 'next/server'
 import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth'
 import { generateFollowUpEmail } from '@/lib/openai'
+import { getUserId } from '@/lib/auth-utils'
 
 export async function POST(request: NextRequest) {
   try {
     const session = await getServerSession(authOptions)
     
-    if (!session?.user?.id) {
+    const userId = getUserId(session)
+    if (!userId) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 

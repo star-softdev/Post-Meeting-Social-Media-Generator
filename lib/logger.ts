@@ -1,74 +1,73 @@
-import winston from 'winston'
-import DailyRotateFile from 'winston-daily-rotate-file'
-import { env } from './config'
+// Edge Runtime compatible logger
+// Simple console-based logger that works in Edge Runtime
 
-// Log levels
-const levels = {
-  error: 0,
-  warn: 1,
-  info: 2,
-  http: 3,
-  debug: 4,
+type LogLevel = 'error' | 'warn' | 'info' | 'http' | 'debug'
+
+interface LogEntry {
+  level: LogLevel
+  message: string
+  timestamp: string
+  [key: string]: any
 }
 
-// Colors for console output
-const colors = {
-  error: 'red',
-  warn: 'yellow',
-  info: 'green',
-  http: 'magenta',
-  debug: 'white',
+class EdgeLogger {
+  private formatMessage(level: LogLevel, message: string, meta?: any): string {
+    const timestamp = new Date().toISOString()
+    const metaStr = meta ? ` ${JSON.stringify(meta)}` : ''
+    return `[${timestamp}] ${level.toUpperCase()}: ${message}${metaStr}`
+  }
+
+  private log(level: LogLevel, message: string, meta?: any) {
+    const formattedMessage = this.formatMessage(level, message, meta)
+    
+    switch (level) {
+      case 'error':
+        console.error(formattedMessage)
+        break
+      case 'warn':
+        console.warn(formattedMessage)
+        break
+      case 'info':
+        console.info(formattedMessage)
+        break
+      case 'http':
+        console.log(formattedMessage)
+        break
+      case 'debug':
+        console.debug(formattedMessage)
+        break
+    }
+  }
+
+  error(message: string, meta?: any) {
+    this.log('error', message, meta)
+  }
+
+  warn(message: string, meta?: any) {
+    this.log('warn', message, meta)
+  }
+
+  info(message: string, meta?: any) {
+    this.log('info', message, meta)
+  }
+
+  http(message: string, meta?: any) {
+    this.log('http', message, meta)
+  }
+
+  debug(message: string, meta?: any) {
+    this.log('debug', message, meta)
+  }
 }
 
-winston.addColors(colors)
+const logger = new EdgeLogger()
 
-// Log format
-const format = winston.format.combine(
-  winston.format.timestamp({ format: 'YYYY-MM-DD HH:mm:ss:ms' }),
-  winston.format.colorize({ all: true }),
-  winston.format.printf(
-    (info) => `${info.timestamp} ${info.level}: ${info.message}`
-  )
-)
-
-// Transports
-const transports = [
-  // Console transport
-  new winston.transports.Console({
-    level: env.NODE_ENV === 'production' ? 'info' : 'debug',
-  }),
-  
-  // File transport for errors
-  new DailyRotateFile({
-    filename: 'logs/error-%DATE%.log',
-    datePattern: 'YYYY-MM-DD',
-    level: 'error',
-    maxSize: '20m',
-    maxFiles: '14d',
-  }),
-  
-  // File transport for all logs
-  new DailyRotateFile({
-    filename: 'logs/combined-%DATE%.log',
-    datePattern: 'YYYY-MM-DD',
-    maxSize: '20m',
-    maxFiles: '14d',
-  }),
-]
-
-// Create logger
-const logger = winston.createLogger({
-  level: env.NODE_ENV === 'production' ? 'info' : 'debug',
-  levels,
-  format,
-  transports,
-  exceptionHandlers: [
-    new winston.transports.File({ filename: 'logs/exceptions.log' })
-  ],
-  rejectionHandlers: [
-    new winston.transports.File({ filename: 'logs/rejections.log' })
-  ],
-})
+// Create a stream object with a 'write' function for Morgan
+export const stream = {
+  write: (message: string) => {
+    logger.http(message.substring(0, message.lastIndexOf('\n')))
+  },
+}
 
 // Structured logging helpers
 export const log = {

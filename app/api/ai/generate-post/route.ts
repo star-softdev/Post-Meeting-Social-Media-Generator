@@ -27,7 +27,8 @@ export async function POST(request: NextRequest) {
         platform: automation.platform,
         meetingId: automation.meetingId || '',
         automationId: automation.id,
-        status: 'draft'
+        status: 'draft',
+        userId: session.user.id
       }
     })
     

@@ -6,11 +6,13 @@ import { handleApiError } from '@/lib/errors'
 import { validateInput, meetingSchemas } from '@/lib/validation'
 import { log } from '@/lib/logger'
 import { withApiSecurity } from '@/lib/security'
+import { getUserId } from '@/lib/auth-utils'
 
 // GET /api/meetings - Get user's meetings
 async function getMeetings(request: NextRequest, context: any) {
   const session = await getServerSession(authOptions)
-  if (!session?.user?.id) {
+  const userId = getUserId(session)
+  if (!userId) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   }
 
@@ -18,7 +20,7 @@ async function getMeetings(request: NextRequest, context: any) {
   const query = validateInput(meetingSchemas.query, Object.fromEntries(searchParams))
 
   try {
-    const result = await prisma.findMeetingsByUser(session.user.id, {
+    const result = await prisma.findMeetingsByUser(userId, {
       status: query.status,
       platform: query.platform,
       startDate: query.startDate ? new Date(query.startDate) : undefined,
@@ -27,14 +29,14 @@ async function getMeetings(request: NextRequest, context: any) {
       limit: query.limit,
     })
 
-    log.info(`Retrieved ${result.meetings.length} meetings for user ${session.user.id}`)
+    log.info(`Retrieved ${result.meetings.length} meetings for user ${userId}`)
 
     return NextResponse.json({
       meetings: result.meetings,
       pagination: result.pagination,
     })
   } catch (error) {
-    log.error('Failed to retrieve meetings', { error, userId: session.user.id })
+    log.error('Failed to retrieve meetings', { error, userId })
     return handleApiError(error)
   }
 }
@@ -42,7 +44,8 @@ async function getMeetings(request: NextRequest, context: any) {
 // POST /api/meetings - Create a new meeting
 async function createMeeting(request: NextRequest, context: any) {
   const session = await getServerSession(authOptions)
-  if (!session?.user?.id) {
+  const userId = getUserId(session)
+  if (!userId) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   }
 
@@ -64,7 +67,7 @@ async function createMeeting(request: NextRequest, context: any) {
     const meeting = await prisma.meeting.create({
       data: {
         ...meetingData,
-        userId: session.user.id,
+        userId: userId,
         startTime,
         endTime,
       },
@@ -73,11 +76,11 @@ async function createMeeting(request: NextRequest, context: any) {
       },
     })
 
-    log.meeting.created(meeting.id, session.user.id, meeting.title)
+    log.meeting.created(meeting.id, userId, meeting.title)
 
     return NextResponse.json(meeting, { status: 201 })
   } catch (error) {
-    log.error('Failed to create meeting', { error, userId: session.user.id })
+    log.error('Failed to create meeting', { error, userId })
     return handleApiError(error)
   }
 }

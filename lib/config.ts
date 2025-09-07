@@ -3,21 +3,21 @@ import { z } from 'zod'
 // Environment validation schema
 const envSchema = z.object({
   // Database
-  DATABASE_URL: z.string().url('Invalid database URL'),
+  DATABASE_URL: z.string().url('Invalid database URL').optional(),
   
   // NextAuth
-  NEXTAUTH_URL: z.string().url('Invalid NextAuth URL'),
-  NEXTAUTH_SECRET: z.string().min(32, 'NextAuth secret must be at least 32 characters'),
+  NEXTAUTH_URL: z.string().url('Invalid NextAuth URL').optional(),
+  NEXTAUTH_SECRET: z.string().min(32, 'NextAuth secret must be at least 32 characters').optional(),
   
   // Google OAuth
-  GOOGLE_CLIENT_ID: z.string().min(1, 'Google Client ID is required'),
-  GOOGLE_CLIENT_SECRET: z.string().min(1, 'Google Client Secret is required'),
+  GOOGLE_CLIENT_ID: z.string().min(1, 'Google Client ID is required').optional(),
+  GOOGLE_CLIENT_SECRET: z.string().min(1, 'Google Client Secret is required').optional(),
   
   // OpenAI
-  OPENAI_API_KEY: z.string().min(1, 'OpenAI API Key is required'),
+  OPENAI_API_KEY: z.string().min(1, 'OpenAI API Key is required').optional(),
   
   // Recall.ai
-  RECALL_API_KEY: z.string().min(1, 'Recall.ai API Key is required'),
+  RECALL_API_KEY: z.string().min(1, 'Recall.ai API Key is required').optional(),
   
   // Social Media (Optional)
   LINKEDIN_CLIENT_ID: z.string().optional(),
