@@ -19,7 +19,7 @@ export async function DELETE(
     await prisma.automation.delete({
       where: { 
         id: params.id,
-        userId: session.user.id // Ensure user owns this automation
+        userId: userId // Ensure user owns this automation
       }
     })
     

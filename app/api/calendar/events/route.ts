@@ -3,6 +3,7 @@ import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth'
 import { getUpcomingEvents } from '@/lib/google-calendar'
 import { prisma } from '@/lib/prisma'
+import { getUserId } from '@/lib/auth-utils'
 
 export async function GET(request: NextRequest) {
   try {
