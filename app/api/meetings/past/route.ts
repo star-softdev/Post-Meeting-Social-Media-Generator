@@ -7,13 +7,14 @@ export async function GET(request: NextRequest) {
   try {
     const session = await getServerSession(authOptions)
     
-    if (!session?.user?.id) {
+    const userId = getUserId(session)
+    if (!userId) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
     const meetings = await prisma.meeting.findMany({
       where: {
-        userId: session.user.id,
+        userId: userId,
         status: 'completed'
       },
       include: {

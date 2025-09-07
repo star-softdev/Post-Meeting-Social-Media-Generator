@@ -8,14 +8,15 @@ export async function GET(request: NextRequest) {
   try {
     const session = await getServerSession(authOptions)
     
-    if (!session?.user?.id) {
+    const userId = getUserId(session)
+    if (!userId) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
     // Get user's Google account
     const account = await prisma.account.findFirst({
       where: {
-        userId: session.user.id,
+        userId: userId,
         provider: 'google'
       }
     })

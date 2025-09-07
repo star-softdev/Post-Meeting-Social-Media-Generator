@@ -7,7 +7,8 @@ export async function POST(request: NextRequest) {
   try {
     const session = await getServerSession(authOptions)
     
-    if (!session?.user?.id) {
+    const userId = getUserId(session)
+    if (!userId) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
@@ -16,7 +17,7 @@ export async function POST(request: NextRequest) {
     // Get the social account
     const socialAccount = await prisma.socialAccount.findFirst({
       where: {
-        userId: session.user.id,
+        userId: userId,
         platform: platform
       }
     })

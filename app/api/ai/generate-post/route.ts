@@ -3,12 +3,14 @@ import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth'
 import { generateSocialMediaPost } from '@/lib/openai'
 import { prisma } from '@/lib/prisma'
+import { getUserId } from '@/lib/auth-utils'
 
 export async function POST(request: NextRequest) {
   try {
     const session = await getServerSession(authOptions)
     
-    if (!session?.user?.id) {
+    const userId = getUserId(session)
+    if (!userId) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
@@ -28,7 +30,7 @@ export async function POST(request: NextRequest) {
         meetingId: automation.meetingId || '',
         automationId: automation.id,
         status: 'draft',
-        userId: session.user.id
+        userId: userId
       }
     })
     

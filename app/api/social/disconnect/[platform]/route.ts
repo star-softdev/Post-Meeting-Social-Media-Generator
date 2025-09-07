@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth'
 import { prisma } from '@/lib/prisma'
+import { getUserId } from '@/lib/auth-utils'
 
 export async function POST(
   request: NextRequest,
@@ -10,7 +11,8 @@ export async function POST(
   try {
     const session = await getServerSession(authOptions)
     
-    if (!session?.user?.id) {
+    const userId = getUserId(session)
+    if (!userId) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
@@ -18,7 +20,7 @@ export async function POST(
 
     await prisma.socialAccount.deleteMany({
       where: {
-        userId: session.user.id,
+        userId: userId,
         platform: platform
       }
     })

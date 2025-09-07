@@ -7,12 +7,13 @@ export async function GET(request: NextRequest) {
   try {
     const session = await getServerSession(authOptions)
     
-    if (!session?.user?.id) {
+    const userId = getUserId(session)
+    if (!userId) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
     const settings = await prisma.userSettings.findUnique({
-      where: { userId: session.user.id }
+      where: { userId: userId }
     })
     
     return NextResponse.json({ settings })
@@ -26,17 +27,18 @@ export async function POST(request: NextRequest) {
   try {
     const session = await getServerSession(authOptions)
     
-    if (!session?.user?.id) {
+    const userId = getUserId(session)
+    if (!userId) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
     const { botJoinMinutesBefore } = await request.json()
 
     const settings = await prisma.userSettings.upsert({
-      where: { userId: session.user.id },
+      where: { userId: userId },
       update: { botJoinMinutesBefore },
       create: {
-        userId: session.user.id,
+        userId: userId,
         botJoinMinutesBefore: botJoinMinutesBefore || 5
       }
     })

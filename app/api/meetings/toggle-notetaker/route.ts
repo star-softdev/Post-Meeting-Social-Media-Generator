@@ -9,7 +9,8 @@ export async function POST(request: NextRequest) {
   try {
     const session = await getServerSession(authOptions)
     
-    if (!session?.user?.id) {
+    const userId = getUserId(session)
+    if (!userId) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
@@ -19,7 +20,7 @@ export async function POST(request: NextRequest) {
       // Get the calendar event details
       const account = await prisma.account.findFirst({
         where: {
-          userId: session.user.id,
+          userId: userId,
           provider: 'google'
         }
       })
@@ -37,7 +38,7 @@ export async function POST(request: NextRequest) {
           endTime: new Date(Date.now() + 60 * 60 * 1000), // 1 hour later
           platform: 'zoom',
           meetingUrl: 'https://zoom.us/j/123456789',
-          userId: session.user.id,
+          userId: userId,
           status: 'scheduled'
         }
       })
@@ -50,7 +51,7 @@ export async function POST(request: NextRequest) {
       // Disable notetaker - remove the meeting or update status
       await prisma.meeting.deleteMany({
         where: {
-          userId: session.user.id,
+          userId: userId,
           // You'd need to match by calendar event ID
         }
       })
