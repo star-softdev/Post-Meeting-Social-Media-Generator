@@ -1,5 +1,7 @@
 // Demo mode configuration
-export const DEMO_MODE = process.env.DEMO_MODE === 'true' || process.env.NODE_ENV === 'development'
+export const DEMO_MODE = process.env.DEMO_MODE === 'true' || 
+                        process.env.NODE_ENV === 'development' ||
+                        process.env.NEXTAUTH_SECRET === 'demo-secret-key-for-presentation-only-32-chars'
 
 export const getDemoMessage = () => {
   if (DEMO_MODE) {

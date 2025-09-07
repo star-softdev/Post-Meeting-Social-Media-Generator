@@ -2,12 +2,13 @@ import { redirect } from 'next/navigation'
 import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth'
 import Dashboard from '@/components/Dashboard'
+import StaticDemo from '@/components/StaticDemo'
 import { isDemoMode } from '@/lib/demo-mode'
 
 export default async function Home() {
-  // Skip authentication in demo mode
+  // Use static demo in demo mode
   if (isDemoMode()) {
-    return <Dashboard />
+    return <StaticDemo />
   }
 
   const session = await getServerSession(authOptions)
