@@ -6,6 +6,8 @@ import { Calendar, Settings, MessageSquare, Users } from 'lucide-react'
 import UpcomingMeetings from './UpcomingMeetings'
 import PastMeetings from './PastMeetings'
 import SettingsPage from './SettingsPage'
+import { isDemoMode, getDemoMessage } from '@/lib/demo-mode'
+import { demoMeetings } from '@/lib/demo-data'
 // Local type definition since Prisma client is not generated
 type Meeting = {
   id: string
@@ -34,8 +36,26 @@ export default function Dashboard() {
     { id: 'settings', label: 'Settings', icon: Settings },
   ]
 
+  // Use demo data in demo mode
+  useEffect(() => {
+    if (isDemoMode()) {
+      setMeetings(demoMeetings as any)
+    }
+  }, [])
+
+  const demoMessage = getDemoMessage()
+
   return (
     <div className="min-h-screen bg-gray-50">
+      {/* Demo Mode Banner */}
+      {demoMessage && (
+        <div className="bg-blue-600 text-white py-2 px-4 text-center">
+          <p className="text-sm font-medium">
+            {demoMessage.title} - {demoMessage.message}
+          </p>
+        </div>
+      )}
+
       {/* Header */}
       <header className="bg-white shadow">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -44,14 +64,18 @@ export default function Dashboard() {
               <h1 className="text-3xl font-bold text-gray-900">
                 Post-Meeting Social Media Generator
               </h1>
-              <p className="text-gray-600">Welcome back, {session?.user?.name}</p>
+              <p className="text-gray-600">
+                {isDemoMode() ? 'Demo Mode - Sample Data' : `Welcome back, ${session?.user?.name}`}
+              </p>
             </div>
             <div className="flex items-center space-x-4">
-              <img
-                src={session?.user?.image || ''}
-                alt={session?.user?.name || ''}
-                className="h-10 w-10 rounded-full"
-              />
+              {!isDemoMode() && (
+                <img
+                  src={session?.user?.image || ''}
+                  alt={session?.user?.name || ''}
+                  className="h-10 w-10 rounded-full"
+                />
+              )}
             </div>
           </div>
         </div>
