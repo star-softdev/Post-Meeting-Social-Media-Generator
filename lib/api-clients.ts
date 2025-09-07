@@ -39,12 +39,14 @@ abstract class BaseApiClient {
       }
 
       const data = await response.json()
-      log.external[this.constructor.name.toLowerCase()]('request', true)
+      const serviceName = this.constructor.name.toLowerCase() as keyof typeof log.external
+      log.external[serviceName]('request', true)
       
       return data
     } catch (error) {
       const duration = Date.now() - startTime
-      log.external[this.constructor.name.toLowerCase()]('request', false, error)
+      const serviceName = this.constructor.name.toLowerCase() as keyof typeof log.external
+      log.external[serviceName]('request', false, error)
       
       if (error instanceof Error) {
         throw new ExternalServiceError(this.constructor.name, error.message)
@@ -125,7 +127,7 @@ export class OpenAIClient extends BaseApiClient {
       temperature: 0.8,
     })
 
-    return response.choices[0]?.message?.content || ''
+    return (response as any).choices[0]?.message?.content || ''
   }
 
   async generateEmailSummary(transcript: string, recipients: string[]) {
@@ -146,7 +148,7 @@ export class OpenAIClient extends BaseApiClient {
       temperature: 0.6,
     })
 
-    return response.choices[0]?.message?.content || ''
+    return (response as any).choices[0]?.message?.content || ''
   }
 }
 

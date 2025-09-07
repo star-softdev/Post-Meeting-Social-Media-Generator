@@ -8,11 +8,11 @@ export interface AuditEvent {
   resource: string
   resourceId: string
   timestamp: Date
-  ipAddress?: string
-  userAgent?: string
+  ipAddress?: string | null
+  userAgent?: string | null
   metadata?: Record<string, any>
   result: 'SUCCESS' | 'FAILURE'
-  errorMessage?: string
+  errorMessage?: string | null
 }
 
 export class AuditLogger {
@@ -113,7 +113,7 @@ export class AuditLogger {
     return {
       period: { startDate, endDate },
       totalEvents: events.length,
-      successRate: events.filter(e => e.result === 'SUCCESS').length / events.length,
+      successRate: events.filter((e: any) => e.result === 'SUCCESS').length / events.length,
       topActions: this.getTopActions(events),
       topResources: this.getTopResources(events),
       events

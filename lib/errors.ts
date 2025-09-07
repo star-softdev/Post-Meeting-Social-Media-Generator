@@ -97,8 +97,8 @@ export function handleApiError(error: unknown): NextResponse {
   }
 
   // Handle Prisma errors
-  if (error instanceof Prisma.PrismaClientKnownRequestError) {
-    switch (error.code) {
+  if ((error as any)?.code && typeof (error as any).code === 'string') {
+    switch ((error as any).code) {
       case 'P2002':
         return NextResponse.json(
           {
@@ -133,7 +133,7 @@ export function handleApiError(error: unknown): NextResponse {
   }
 
   // Handle Prisma connection errors
-  if (error instanceof Prisma.PrismaClientInitializationError) {
+  if ((error as any)?.errorCode && (error as any).errorCode.startsWith('P')) {
     return NextResponse.json(
       {
         error: {

@@ -55,7 +55,7 @@ describe('/api/meetings', () => {
       })
 
       const request = new NextRequest('http://localhost:3000/api/meetings')
-      const response = await GET(request)
+      const response = await GET(request, {})
       const data = await response.json()
 
       expect(response.status).toBe(200)
@@ -72,7 +72,7 @@ describe('/api/meetings', () => {
         pagination: { page: 2, limit: 10, total: 0, pages: 0 },
       })
 
-      await GET(request)
+      await GET(request, {})
 
       expect(prisma.findMeetingsByUser).toHaveBeenCalledWith('test-user-id', {
         status: 'completed',
@@ -89,7 +89,7 @@ describe('/api/meetings', () => {
       jest.mocked(require('next-auth').getServerSession).mockResolvedValue(null)
 
       const request = new NextRequest('http://localhost:3000/api/meetings')
-      const response = await GET(request)
+      const response = await GET(request, {})
 
       expect(response.status).toBe(401)
     })
@@ -126,7 +126,7 @@ describe('/api/meetings', () => {
         },
       })
 
-      const response = await POST(request)
+      const response = await POST(request, {})
       const data = await response.json()
 
       expect(response.status).toBe(201)
@@ -150,7 +150,7 @@ describe('/api/meetings', () => {
         },
       })
 
-      const response = await POST(request)
+      const response = await POST(request, {})
 
       expect(response.status).toBe(400)
     })
@@ -166,7 +166,7 @@ describe('/api/meetings', () => {
         },
       })
 
-      const response = await POST(request)
+      const response = await POST(request, {})
 
       expect(response.status).toBe(401)
     })

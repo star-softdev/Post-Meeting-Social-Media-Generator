@@ -8,7 +8,7 @@ import { log } from '@/lib/logger'
 import { withApiSecurity } from '@/lib/security'
 
 // GET /api/meetings - Get user's meetings
-async function getMeetings(request: NextRequest) {
+async function getMeetings(request: NextRequest, context: any) {
   const session = await getServerSession(authOptions)
   if (!session?.user?.id) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
@@ -40,7 +40,7 @@ async function getMeetings(request: NextRequest) {
 }
 
 // POST /api/meetings - Create a new meeting
-async function createMeeting(request: NextRequest) {
+async function createMeeting(request: NextRequest, context: any) {
   const session = await getServerSession(authOptions)
   if (!session?.user?.id) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })

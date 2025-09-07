@@ -8,6 +8,7 @@ export interface ContentGenerationConfig {
   maxTokens: number
   presencePenalty: number
   frequencyPenalty: number
+  platform: string
   customInstructions?: string
   brandVoice?: string
   targetAudience?: string

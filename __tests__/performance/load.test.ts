@@ -47,7 +47,7 @@ describe('Performance Tests', () => {
       const startTime = Date.now()
       
       const request = new NextRequest('http://localhost:3000/api/meetings?page=1&limit=20')
-      const response = await GET(request)
+      const response = await GET(request, {})
       
       const endTime = Date.now()
       const responseTime = endTime - startTime
@@ -89,7 +89,7 @@ describe('Performance Tests', () => {
       // Simulate 10 concurrent requests
       const concurrentRequests = Array.from({ length: 10 }, () => {
         const request = new NextRequest('http://localhost:3000/api/meetings')
-        return GET(request)
+        return GET(request, {})
       })
 
       const startTime = Date.now()
@@ -141,7 +141,7 @@ describe('Performance Tests', () => {
         const startTime = Date.now()
         
         const request = new NextRequest(`http://localhost:3000/api/meetings?page=1&limit=${limit}`)
-        const response = await GET(request)
+        const response = await GET(request, {})
         
         const endTime = Date.now()
         const responseTime = endTime - startTime
@@ -185,7 +185,7 @@ describe('Performance Tests', () => {
       // Make 100 requests to test for memory leaks
       const requests = Array.from({ length: 100 }, () => {
         const request = new NextRequest('http://localhost:3000/api/meetings')
-        return GET(request)
+        return GET(request, {})
       })
 
       const responses = await Promise.all(requests)
@@ -233,7 +233,7 @@ describe('Performance Tests', () => {
       const startTime = Date.now()
       
       const request = new NextRequest('http://localhost:3000/api/meetings?platform=zoom&status=completed')
-      const response = await GET(request)
+      const response = await GET(request, {})
       
       const endTime = Date.now()
       const responseTime = endTime - startTime
@@ -253,7 +253,7 @@ describe('Performance Tests', () => {
       const startTime = Date.now()
       
       const request = new NextRequest('http://localhost:3000/api/meetings')
-      const response = await GET(request)
+      const response = await GET(request, {})
       
       const endTime = Date.now()
       const responseTime = endTime - startTime

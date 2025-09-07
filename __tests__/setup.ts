@@ -1,3 +1,4 @@
+import '@testing-library/jest-dom'
 import { PrismaClient } from '@prisma/client'
 import { execSync } from 'child_process'
 

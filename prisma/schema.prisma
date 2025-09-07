@@ -51,6 +51,7 @@ model User {
   settings      UserSettings?
   integrations  Integration[]
   abTests       ABTest[]
+  posts         Post[]
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
 }
@@ -90,22 +91,26 @@ model Post {
   meeting     Meeting  @relation(fields: [meetingId], references: [id], onDelete: Cascade)
   automationId String?
   automation  Automation? @relation(fields: [automationId], references: [id])
+  userId      String
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 }
 
 model Automation {
-  id          String   @id @default(cuid())
-  name        String
-  type        String   // "Generate post"
-  platform    String   // linkedin, facebook
-  description String
-  example     String?
-  userId      String
-  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  posts       Post[]
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  id                String   @id @default(cuid())
+  name              String
+  type              String   // "Generate post"
+  platform          String   // linkedin, facebook
+  description       String
+  example           String?
+  isActive          Boolean  @default(true)
+  triggerConditions Json?    // JSON object for trigger conditions
+  userId            String
+  user              User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  posts             Post[]
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
 }
 
 model SocialAccount {
@@ -118,15 +123,18 @@ model SocialAccount {
   user              User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   createdAt         DateTime @default(now())
   updatedAt         DateTime @updatedAt
+
+  @@unique([userId, platform])
 }
 
 model UserSettings {
-  id                    String   @id @default(cuid())
-  botJoinMinutesBefore  Int      @default(5)
-  userId                String   @unique
-  user                  User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  createdAt             DateTime @default(now())
-  updatedAt             DateTime @updatedAt
+  id                      String   @id @default(cuid())
+  botJoinMinutesBefore    Int      @default(5)
+  defaultAutomationEnabled Boolean  @default(true)
+  userId                  String   @unique
+  user                    User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt               DateTime @default(now())
+  updatedAt               DateTime @updatedAt
 }
 
 model AuditLog {

@@ -1,6 +1,6 @@
 import { NextRequest } from 'next/server'
 import { GET as getMeetings, POST as createMeeting } from '@/app/api/meetings/route'
-import { POST as generatePost } from '@/app/api/ai/generate-social-post/route'
+import { POST as generatePost } from '@/app/api/ai/generate-post/route'
 import { prisma } from '@/lib/database'
 
 // Mock external services
@@ -59,7 +59,7 @@ describe('Meeting Workflow Integration', () => {
         headers: { 'Content-Type': 'application/json' },
       })
 
-      const createResponse = await createMeeting(createRequest)
+      const createResponse = await createMeeting(createRequest, {})
       const createdMeeting = await createResponse.json()
 
       expect(createResponse.status).toBe(201)
@@ -106,7 +106,7 @@ describe('Meeting Workflow Integration', () => {
       })
 
       const getRequest = new NextRequest('http://localhost:3000/api/meetings')
-      const getResponse = await getMeetings(getRequest)
+      const getResponse = await getMeetings(getRequest, {})
       const meetings = await getResponse.json()
 
       expect(getResponse.status).toBe(200)
@@ -163,12 +163,12 @@ describe('Meeting Workflow Integration', () => {
         headers: { 'Content-Type': 'application/json' },
       })
 
-      const createResponse = await createMeeting(createRequest)
+      const createResponse = await createMeeting(createRequest, {})
       const createdMeeting = await createResponse.json()
 
       // Retrieve meeting with posts
       const getRequest = new NextRequest('http://localhost:3000/api/meetings')
-      const getResponse = await getMeetings(getRequest)
+      const getResponse = await getMeetings(getRequest, {})
       const meetings = await getResponse.json()
 
       expect(meetings.meetings[0].posts).toHaveLength(2)
@@ -260,7 +260,7 @@ describe('Meeting Workflow Integration', () => {
         headers: { 'Content-Type': 'application/json' },
       })
 
-      const response = await createMeeting(request)
+      const response = await createMeeting(request, {})
 
       expect(response.status).toBe(500)
     })

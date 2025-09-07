@@ -1,26 +1,24 @@
 // Enterprise Metrics and Monitoring
-import { prometheus } from 'prom-client'
-
-// Custom metrics registry
-const register = new prometheus.Registry()
+import { register, Counter, Histogram, Gauge } from 'prom-client'
+import { prisma } from '../prisma'
 
 // Business metrics
 export const meetingMetrics = {
-  scheduled: new prometheus.Counter({
+  scheduled: new Counter({
     name: 'meetings_scheduled_total',
     help: 'Total number of meetings scheduled',
     labelNames: ['platform', 'user_id'],
     registers: [register]
   }),
   
-  completed: new prometheus.Counter({
+  completed: new Counter({
     name: 'meetings_completed_total',
     help: 'Total number of meetings completed',
     labelNames: ['platform', 'user_id'],
     registers: [register]
   }),
   
-  duration: new prometheus.Histogram({
+  duration: new Histogram({
     name: 'meeting_duration_seconds',
     help: 'Duration of meetings in seconds',
     labelNames: ['platform'],
@@ -28,7 +26,7 @@ export const meetingMetrics = {
     registers: [register]
   }),
   
-  transcriptLength: new prometheus.Histogram({
+  transcriptLength: new Histogram({
     name: 'meeting_transcript_length_chars',
     help: 'Length of meeting transcripts in characters',
     labelNames: ['platform'],
@@ -38,14 +36,14 @@ export const meetingMetrics = {
 }
 
 export const contentMetrics = {
-  generated: new prometheus.Counter({
+  generated: new Counter({
     name: 'content_generated_total',
     help: 'Total number of content pieces generated',
     labelNames: ['type', 'platform', 'automation_id'],
     registers: [register]
   }),
   
-  generationTime: new prometheus.Histogram({
+  generationTime: new Histogram({
     name: 'content_generation_duration_seconds',
     help: 'Time taken to generate content',
     labelNames: ['type', 'platform'],
@@ -53,7 +51,7 @@ export const contentMetrics = {
     registers: [register]
   }),
   
-  posted: new prometheus.Counter({
+  posted: new Counter({
     name: 'content_posted_total',
     help: 'Total number of content pieces posted to social media',
     labelNames: ['platform', 'status'],
@@ -62,21 +60,21 @@ export const contentMetrics = {
 }
 
 export const userMetrics = {
-  activeUsers: new prometheus.Gauge({
+  activeUsers: new Gauge({
     name: 'active_users_total',
     help: 'Number of active users',
     labelNames: ['time_period'],
     registers: [register]
   }),
   
-  socialConnections: new prometheus.Gauge({
+  socialConnections: new Gauge({
     name: 'social_connections_total',
     help: 'Number of social media connections',
     labelNames: ['platform'],
     registers: [register]
   }),
   
-  automationsCreated: new prometheus.Counter({
+  automationsCreated: new Counter({
     name: 'automations_created_total',
     help: 'Total number of automations created',
     labelNames: ['platform', 'user_id'],
@@ -85,14 +83,14 @@ export const userMetrics = {
 }
 
 export const systemMetrics = {
-  apiRequests: new prometheus.Counter({
+  apiRequests: new Counter({
     name: 'api_requests_total',
     help: 'Total number of API requests',
     labelNames: ['method', 'endpoint', 'status_code'],
     registers: [register]
   }),
   
-  apiDuration: new prometheus.Histogram({
+  apiDuration: new Histogram({
     name: 'api_request_duration_seconds',
     help: 'Duration of API requests',
     labelNames: ['method', 'endpoint'],
@@ -100,13 +98,13 @@ export const systemMetrics = {
     registers: [register]
   }),
   
-  databaseConnections: new prometheus.Gauge({
+  databaseConnections: new Gauge({
     name: 'database_connections_active',
     help: 'Number of active database connections',
     registers: [register]
   }),
   
-  cacheHitRate: new prometheus.Gauge({
+  cacheHitRate: new Gauge({
     name: 'cache_hit_rate',
     help: 'Cache hit rate percentage',
     labelNames: ['cache_type'],
@@ -115,14 +113,14 @@ export const systemMetrics = {
 }
 
 export const errorMetrics = {
-  errors: new prometheus.Counter({
+  errors: new Counter({
     name: 'application_errors_total',
     help: 'Total number of application errors',
     labelNames: ['error_type', 'component', 'severity'],
     registers: [register]
   }),
   
-  externalApiErrors: new prometheus.Counter({
+  externalApiErrors: new Counter({
     name: 'external_api_errors_total',
     help: 'Total number of external API errors',
     labelNames: ['api_name', 'error_code'],
@@ -208,7 +206,7 @@ export class PerformanceMonitor {
       
       errorMetrics.errors
         .labels({ 
-          error_type: error.constructor.name, 
+          error_type: (error as any).constructor?.name || 'Unknown', 
           component: name, 
           severity: 'ERROR' 
         })

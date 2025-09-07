@@ -101,7 +101,7 @@ export class EnterpriseEncryption {
     if (typeof data === 'object' && data !== null) {
       const encrypted: any = {}
       for (const [key, value] of Object.entries(data)) {
-        encrypted[key] = this.encryptPII(value, key)
+        encrypted[key] = this.encryptPII(value, Buffer.from(key))
       }
       return encrypted
     }
@@ -122,7 +122,7 @@ export class EnterpriseEncryption {
     if (typeof data === 'object' && data !== null) {
       const decrypted: any = {}
       for (const [key, value] of Object.entries(data)) {
-        decrypted[key] = this.decryptPII(value, key)
+        decrypted[key] = this.decryptPII(value, Buffer.from(key))
       }
       return decrypted
     }

@@ -47,7 +47,7 @@ export class EnterpriseRateLimiter {
     pipeline.get(windowKey)
     
     const results = await pipeline.exec()
-    const currentCount = parseInt(results[2][1] as string) || 0
+    const currentCount = results ? parseInt(results[2][1] as string) || 0 : 0
 
     const allowed = currentCount <= config.maxRequests
     const remaining = Math.max(0, config.maxRequests - currentCount)

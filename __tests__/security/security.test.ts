@@ -18,7 +18,7 @@ describe('Security Tests', () => {
       jest.mocked(require('next-auth').getServerSession).mockResolvedValue(null)
 
       const request = new NextRequest('http://localhost:3000/api/meetings')
-      const response = await GET(request)
+      const response = await GET(request, {})
 
       expect(response.status).toBe(401)
     })
@@ -30,7 +30,7 @@ describe('Security Tests', () => {
       })
 
       const request = new NextRequest('http://localhost:3000/api/meetings')
-      const response = await GET(request)
+      const response = await GET(request, {})
 
       expect(response.status).toBe(401)
     })
@@ -52,7 +52,7 @@ describe('Security Tests', () => {
       })
 
       const request = new NextRequest('http://localhost:3000/api/meetings')
-      const response = await GET(request)
+      const response = await GET(request, {})
 
       expect(response.status).toBe(200)
     })
@@ -78,7 +78,7 @@ describe('Security Tests', () => {
         pagination: { page: 1, limit: 20, total: 0, pages: 0 },
       })
 
-      const response = await GET(maliciousRequest)
+      const response = await GET(maliciousRequest, {})
 
       // Should not crash and should handle the request normally
       expect(response.status).toBe(200)
@@ -108,7 +108,7 @@ describe('Security Tests', () => {
         headers: { 'Content-Type': 'application/json' },
       })
 
-      const response = await POST(maliciousRequest)
+      const response = await POST(maliciousRequest, {})
 
       // Should reject the request due to validation
       expect(response.status).toBe(400)
@@ -130,7 +130,7 @@ describe('Security Tests', () => {
         headers: { 'Content-Type': 'application/json' },
       })
 
-      const response = await POST(largeRequest)
+      const response = await POST(largeRequest, {})
 
       // Should reject due to validation
       expect(response.status).toBe(400)
@@ -150,7 +150,7 @@ describe('Security Tests', () => {
         headers: { 'Content-Type': 'application/json' },
       })
 
-      const response = await POST(invalidRequest)
+      const response = await POST(invalidRequest, {})
 
       expect(response.status).toBe(400)
     })
@@ -193,7 +193,7 @@ describe('Security Tests', () => {
       })
 
       const request = new NextRequest('http://localhost:3000/api/meetings')
-      const response = await GET(request)
+      const response = await GET(request, {})
       const data = await response.json()
 
       expect(response.status).toBe(200)
@@ -229,7 +229,7 @@ describe('Security Tests', () => {
       // Simulate multiple rapid requests
       const requests = Array.from({ length: 5 }, () => {
         const request = new NextRequest('http://localhost:3000/api/meetings')
-        return GET(request)
+        return GET(request, {})
       })
 
       const responses = await Promise.all(requests)
@@ -281,7 +281,7 @@ describe('Security Tests', () => {
         },
       })
 
-      const response = await POST(request)
+      const response = await POST(request, {})
 
       // Should be handled by middleware, but the request should still be processed
       // (CSRF protection would be handled at the middleware level)
@@ -325,7 +325,7 @@ describe('Security Tests', () => {
         headers: { 'Content-Type': 'application/json' },
       })
 
-      const response = await POST(request)
+      const response = await POST(request, {})
 
       // Should reject due to validation
       expect(response.status).toBe(400)

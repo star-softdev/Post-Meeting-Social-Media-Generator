@@ -2,7 +2,8 @@
 import { describe, it, expect, beforeAll, afterAll, beforeEach } from '@jest/globals'
 import { PrismaClient } from '@prisma/client'
 import { createMocks } from 'node-mocks-http'
-import handler from '../../app/api/meetings/past/route'
+import { NextRequest } from 'next/server'
+import { GET as handler } from '../../app/api/meetings/past/route'
 
 const prisma = new PrismaClient()
 
@@ -76,7 +77,13 @@ describe('Meeting API Integration Tests', () => {
       }))
 
       // Call handler
-      await handler(req, res)
+      const nextRequest = new NextRequest('http://localhost:3000/api/meetings/past', {
+        method: 'GET',
+        headers: req.headers,
+      })
+      const response = await handler(nextRequest)
+      res.statusCode = response.status
+      res._getData = async () => JSON.stringify(await response.json())
 
       // Assertions
       expect(res._getStatusCode()).toBe(200)
@@ -96,7 +103,13 @@ describe('Meeting API Integration Tests', () => {
         getServerSession: () => null
       }))
 
-      await handler(req, res)
+      const nextRequest = new NextRequest('http://localhost:3000/api/meetings/past', {
+        method: 'GET',
+        headers: req.headers,
+      })
+      const response = await handler(nextRequest)
+      res.statusCode = response.status
+      res._getData = async () => JSON.stringify(await response.json())
 
       expect(res._getStatusCode()).toBe(401)
     })
@@ -118,7 +131,13 @@ describe('Meeting API Integration Tests', () => {
         })
       }))
 
-      await handler(req, res)
+      const nextRequest = new NextRequest('http://localhost:3000/api/meetings/past', {
+        method: 'GET',
+        headers: req.headers,
+      })
+      const response = await handler(nextRequest)
+      res.statusCode = response.status
+      res._getData = async () => JSON.stringify(await response.json())
 
       expect(res._getStatusCode()).toBe(500)
     })

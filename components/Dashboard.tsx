@@ -6,7 +6,22 @@ import { Calendar, Settings, MessageSquare, Users } from 'lucide-react'
 import UpcomingMeetings from './UpcomingMeetings'
 import PastMeetings from './PastMeetings'
 import SettingsPage from './SettingsPage'
-import { Meeting } from '@prisma/client'
+// Local type definition since Prisma client is not generated
+type Meeting = {
+  id: string
+  title: string
+  startTime: Date
+  endTime: Date
+  platform: string
+  meetingUrl?: string | null
+  transcript?: string | null
+  attendees: string[]
+  botId?: string | null
+  status: string
+  userId: string
+  createdAt: Date
+  updatedAt: Date
+}
 
 export default function Dashboard() {
   const { data: session } = useSession()

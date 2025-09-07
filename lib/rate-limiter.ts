@@ -31,6 +31,14 @@ class MemoryStore {
     await this.set(key, count, ttl)
     return count
   }
+
+  async delete(key: string): Promise<void> {
+    this.store.delete(key)
+  }
+
+  entries(): IterableIterator<[string, { count: number; resetTime: number }]> {
+    return this.store.entries()
+  }
 }
 
 // Redis client (if available)
@@ -38,7 +46,6 @@ let redis: Redis | null = null
 if (features.redis && env.REDIS_URL) {
   try {
     redis = new Redis(env.REDIS_URL, {
-      retryDelayOnFailover: 100,
       maxRetriesPerRequest: 3,
       lazyConnect: true,
     })
@@ -86,7 +93,7 @@ export const rateLimit = {
     if (redis) {
       await redis.del(key)
     } else {
-      memoryStore.store.delete(key)
+      memoryStore.delete(key)
     }
   }
 }
@@ -110,9 +117,9 @@ export const rateLimiters = {
 if (!redis) {
   setInterval(() => {
     const now = Date.now()
-    for (const [key, value] of memoryStore.store.entries()) {
+    for (const [key, value] of memoryStore.entries()) {
       if (now > value.resetTime) {
-        memoryStore.store.delete(key)
+        memoryStore.delete(key)
       }
     }
   }, 60000) // Clean up every minute

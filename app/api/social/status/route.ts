@@ -15,8 +15,8 @@ export async function GET(request: NextRequest) {
       where: { userId: session.user.id }
     })
 
-    const linkedin = socialAccounts.some(account => account.platform === 'linkedin')
-    const facebook = socialAccounts.some(account => account.platform === 'facebook')
+    const linkedin = socialAccounts.some((account: any) => account.platform === 'linkedin')
+    const facebook = socialAccounts.some((account: any) => account.platform === 'facebook')
     
     return NextResponse.json({ linkedin, facebook })
   } catch (error) {

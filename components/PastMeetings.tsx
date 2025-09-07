@@ -3,15 +3,60 @@
 import { useState, useEffect } from 'react'
 import { useSession } from 'next-auth/react'
 import { MessageSquare, Clock, Users, Video, Eye, Mail, Share2 } from 'lucide-react'
-import { Meeting } from '@prisma/client'
+// Local type definitions since Prisma client is not generated
+type Meeting = {
+  id: string
+  title: string
+  startTime: Date
+  endTime: Date
+  platform: string
+  meetingUrl?: string | null
+  transcript?: string | null
+  attendees: string[]
+  botId?: string | null
+  status: string
+  userId: string
+  createdAt: Date
+  updatedAt: Date
+}
+
+type Post = {
+  id: string
+  content: string
+  platform: string
+  status: string
+  meetingId: string
+  automationId?: string | null
+  userId: string
+  createdAt: Date
+  updatedAt: Date
+}
+
+type Automation = {
+  id: string
+  name: string
+  type: string
+  platform: string
+  description: string
+  example?: string | null
+  isActive: boolean
+  triggerConditions?: any
+  userId: string
+  createdAt: Date
+  updatedAt: Date
+}
 import MeetingDetailModal from './MeetingDetailModal'
+
+interface MeetingWithPosts extends Meeting {
+  posts: (Post & { automation: Automation | null })[]
+}
 
 
 export default function PastMeetings() {
   const { data: session } = useSession()
-  const [meetings, setMeetings] = useState<Meeting[]>([])
+  const [meetings, setMeetings] = useState<MeetingWithPosts[]>([])
   const [loading, setLoading] = useState(true)
-  const [selectedMeeting, setSelectedMeeting] = useState<Meeting | null>(null)
+  const [selectedMeeting, setSelectedMeeting] = useState<MeetingWithPosts | null>(null)
 
   useEffect(() => {
     if (session) {

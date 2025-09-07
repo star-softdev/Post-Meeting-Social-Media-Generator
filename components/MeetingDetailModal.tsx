@@ -2,7 +2,48 @@
 
 import { useState, useEffect } from 'react'
 import { X, Copy, Send, MessageSquare, Mail, Share2, Clock, Users, Video } from 'lucide-react'
-import { Meeting, Post, Automation } from '@prisma/client'
+// Local type definitions since Prisma client is not generated
+type Meeting = {
+  id: string
+  title: string
+  startTime: Date
+  endTime: Date
+  platform: string
+  meetingUrl?: string | null
+  transcript?: string | null
+  attendees: string[]
+  botId?: string | null
+  status: string
+  userId: string
+  createdAt: Date
+  updatedAt: Date
+}
+
+type Post = {
+  id: string
+  content: string
+  platform: string
+  status: string
+  meetingId: string
+  automationId?: string | null
+  userId: string
+  createdAt: Date
+  updatedAt: Date
+}
+
+type Automation = {
+  id: string
+  name: string
+  type: string
+  platform: string
+  description: string
+  example?: string | null
+  isActive: boolean
+  triggerConditions?: any
+  userId: string
+  createdAt: Date
+  updatedAt: Date
+}
 import toast from 'react-hot-toast'
 
 interface MeetingWithPosts extends Meeting {
