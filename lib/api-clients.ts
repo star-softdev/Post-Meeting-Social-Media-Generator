@@ -158,6 +158,9 @@ export class OpenAIClient extends BaseApiClient {
 // Recall.ai API client
 export class RecallClient extends BaseApiClient {
   constructor() {
+    if (!env.RECALL_API_KEY) {
+      throw new Error('RECALL_API_KEY is required')
+    }
     super(apiEndpoints.recall.base, env.RECALL_API_KEY)
   }
 
