@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { Calendar, Settings, MessageSquare, Users, ExternalLink, Bot, Zap, Clock, Video, RefreshCw } from 'lucide-react'
+import { Calendar, Settings, MessageSquare, Users, ExternalLink, Bot, Zap, Clock, Video, RefreshCw, Eye, Copy, Send, Edit, Trash2, Plus, X } from 'lucide-react'
 
 // Static demo data matching the mockup images
 const upcomingMeetings = [
@@ -96,6 +96,25 @@ const demoAutomations = [
 
 export default function StaticDemo() {
   const [activeTab, setActiveTab] = useState<'upcoming' | 'past' | 'settings'>('upcoming')
+  const [selectedMeeting, setSelectedMeeting] = useState<any>(null)
+  const [modalTab, setModalTab] = useState<'transcript' | 'email' | 'posts'>('transcript')
+  const [showCreateModal, setShowCreateModal] = useState(false)
+  const [notetakerStates, setNotetakerStates] = useState<{[key: string]: boolean}>({
+    '1': true,
+    '2': true,
+    '3': false
+  })
+  const [automationStates, setAutomationStates] = useState<{[key: string]: boolean}>({
+    '1': true,
+    '2': true,
+    '3': false
+  })
+  const [toast, setToast] = useState<{message: string, type: 'success' | 'error'} | null>(null)
+
+  const showToast = (message: string, type: 'success' | 'error' = 'success') => {
+    setToast({ message, type })
+    setTimeout(() => setToast(null), 3000)
+  }
 
   const tabs = [
     { id: 'upcoming', label: 'Upcoming Meetings', icon: Calendar },
@@ -176,7 +195,10 @@ export default function StaticDemo() {
             <div className="bg-white shadow rounded-lg border-2 border-dashed border-gray-300">
               <div className="px-6 py-4 border-b border-gray-200 flex justify-between items-center">
                 <h2 className="text-lg font-medium text-gray-900">Past Meetings</h2>
-                <button className="bg-blue-600 text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-blue-700 flex items-center space-x-2">
+                <button 
+                  onClick={() => showToast('Meetings refreshed successfully!')}
+                  className="bg-blue-600 text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-blue-700 flex items-center space-x-2"
+                >
                   <RefreshCw className="h-4 w-4" />
                   <span>Refresh</span>
                 </button>
@@ -210,8 +232,12 @@ export default function StaticDemo() {
                         </div>
                       </div>
                       <div className="ml-4">
-                        <button className="bg-blue-600 text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-blue-700">
-                          View Details
+                        <button 
+                          onClick={() => setSelectedMeeting(meeting)}
+                          className="bg-blue-600 text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-blue-700 flex items-center space-x-2"
+                        >
+                          <Eye className="h-4 w-4" />
+                          <span>View Details</span>
                         </button>
                       </div>
                     </div>
@@ -227,7 +253,10 @@ export default function StaticDemo() {
             <div className="bg-white shadow rounded-lg border-2 border-dashed border-gray-300">
               <div className="px-6 py-4 border-b border-gray-200 flex justify-between items-center">
                 <h2 className="text-lg font-medium text-gray-900">Upcoming Meetings</h2>
-                <button className="bg-blue-600 text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-blue-700 flex items-center space-x-2">
+                <button 
+                  onClick={() => showToast('Meetings refreshed successfully!')}
+                  className="bg-blue-600 text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-blue-700 flex items-center space-x-2"
+                >
                   <RefreshCw className="h-4 w-4" />
                   <span>Refresh</span>
                 </button>
@@ -261,18 +290,27 @@ export default function StaticDemo() {
                       </div>
                       <div className="ml-4 flex flex-col items-end">
                         <div className="text-sm font-medium text-gray-900">Notetaker</div>
-                        <div className={`text-sm ${meeting.notetakerEnabled ? 'text-green-600' : 'text-gray-500'}`}>
-                          {meeting.notetakerEnabled ? 'Enabled' : 'Disabled'}
+                        <div className={`text-sm ${notetakerStates[meeting.id] ? 'text-green-600' : 'text-gray-500'}`}>
+                          {notetakerStates[meeting.id] ? 'Enabled' : 'Disabled'}
                         </div>
-                        <div className={`mt-2 relative inline-flex h-6 w-11 items-center rounded-full ${
-                          meeting.notetakerEnabled ? 'bg-green-600' : 'bg-gray-200'
-                        }`}>
+                        <button
+                          onClick={() => {
+                            setNotetakerStates(prev => ({
+                              ...prev,
+                              [meeting.id]: !prev[meeting.id]
+                            }))
+                            showToast(`Notetaker ${!notetakerStates[meeting.id] ? 'enabled' : 'disabled'} for ${meeting.title}`)
+                          }}
+                          className={`mt-2 relative inline-flex h-6 w-11 items-center rounded-full ${
+                            notetakerStates[meeting.id] ? 'bg-green-600' : 'bg-gray-200'
+                          }`}
+                        >
                           <span
                             className={`inline-block h-4 w-4 transform rounded-full bg-white transition ${
-                              meeting.notetakerEnabled ? 'translate-x-6' : 'translate-x-1'
+                              notetakerStates[meeting.id] ? 'translate-x-6' : 'translate-x-1'
                             }`}
                           />
-                        </div>
+                        </button>
                       </div>
                     </div>
                   </div>
@@ -285,9 +323,18 @@ export default function StaticDemo() {
         {activeTab === 'settings' && (
           <div className="space-y-6">
             <div className="bg-white shadow rounded-lg">
-              <div className="px-6 py-4 border-b border-gray-200">
-                <h2 className="text-lg font-medium text-gray-900">Automation Settings</h2>
-                <p className="text-sm text-gray-600 mt-1">Configure how AI generates social media posts from your meetings</p>
+              <div className="px-6 py-4 border-b border-gray-200 flex justify-between items-center">
+                <div>
+                  <h2 className="text-lg font-medium text-gray-900">Automation Settings</h2>
+                  <p className="text-sm text-gray-600 mt-1">Configure how AI generates social media posts from your meetings</p>
+                </div>
+                <button 
+                  onClick={() => setShowCreateModal(true)}
+                  className="bg-blue-600 text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-blue-700 flex items-center space-x-2"
+                >
+                  <Plus className="h-4 w-4" />
+                  <span>Add Automation</span>
+                </button>
               </div>
               <div className="divide-y divide-gray-200">
                 {demoAutomations.map((automation) => (
@@ -297,11 +344,11 @@ export default function StaticDemo() {
                         <div className="flex items-center space-x-3">
                           <h3 className="text-lg font-medium text-gray-900">{automation.name}</h3>
                           <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                            automation.isActive 
+                            automationStates[automation.id]
                               ? 'bg-green-100 text-green-800' 
                               : 'bg-gray-100 text-gray-800'
                           }`}>
-                            {automation.isActive ? 'Active' : 'Inactive'}
+                            {automationStates[automation.id] ? 'Active' : 'Inactive'}
                           </span>
                         </div>
                         <p className="mt-1 text-sm text-gray-600">{automation.description}</p>
@@ -311,17 +358,36 @@ export default function StaticDemo() {
                           </p>
                         </div>
                       </div>
-                      <div className="ml-4 flex items-center">
+                      <div className="ml-4 flex items-center space-x-2">
                         <button
+                          onClick={() => {
+                            setAutomationStates(prev => ({
+                              ...prev,
+                              [automation.id]: !prev[automation.id]
+                            }))
+                            showToast(`${automation.name} ${!automationStates[automation.id] ? 'activated' : 'deactivated'}`)
+                          }}
                           className={`relative inline-flex h-6 w-11 items-center rounded-full ${
-                            automation.isActive ? 'bg-blue-600' : 'bg-gray-200'
+                            automationStates[automation.id] ? 'bg-blue-600' : 'bg-gray-200'
                           }`}
                         >
                           <span
                             className={`inline-block h-4 w-4 transform rounded-full bg-white transition ${
-                              automation.isActive ? 'translate-x-6' : 'translate-x-1'
+                              automationStates[automation.id] ? 'translate-x-6' : 'translate-x-1'
                             }`}
                           />
+                        </button>
+                        <button
+                          onClick={() => showToast(`Editing ${automation.name}`)}
+                          className="p-2 text-gray-400 hover:text-blue-600"
+                        >
+                          <Edit className="h-4 w-4" />
+                        </button>
+                        <button
+                          onClick={() => showToast(`${automation.name} deleted`, 'error')}
+                          className="p-2 text-gray-400 hover:text-red-600"
+                        >
+                          <Trash2 className="h-4 w-4" />
                         </button>
                       </div>
                     </div>
@@ -385,6 +451,267 @@ export default function StaticDemo() {
           </div>
         )}
       </main>
+
+      {/* Meeting Detail Modal */}
+      {selectedMeeting && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+          <div className="bg-white rounded-lg max-w-4xl w-full max-h-[90vh] overflow-hidden">
+            <div className="flex items-center justify-between p-6 border-b">
+              <div className="flex items-center space-x-3">
+                <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
+                  <span className="text-blue-600 font-semibold text-sm">📋</span>
+                </div>
+                <div>
+                  <h2 className="text-xl font-semibold">{selectedMeeting.title}</h2>
+                  <p className="text-sm text-gray-500">
+                    {formatDate(selectedMeeting.startTime)} • {selectedMeeting.platform} • {selectedMeeting.attendeeCount} attendees
+                  </p>
+                </div>
+              </div>
+              <button
+                onClick={() => setSelectedMeeting(null)}
+                className="text-gray-400 hover:text-gray-600"
+              >
+                <X className="h-6 w-6" />
+              </button>
+            </div>
+
+            <div className="flex border-b">
+              {[
+                { id: 'transcript', label: 'Transcript', icon: MessageSquare },
+                { id: 'email', label: 'Follow-up Email', icon: Send },
+                { id: 'posts', label: 'Social Posts', icon: ExternalLink }
+              ].map((tab) => {
+                const Icon = tab.icon
+                return (
+                  <button
+                    key={tab.id}
+                    onClick={() => setModalTab(tab.id as any)}
+                    className={`flex items-center space-x-2 px-6 py-3 text-sm font-medium ${
+                      modalTab === tab.id
+                        ? 'border-b-2 border-blue-500 text-blue-600'
+                        : 'text-gray-500 hover:text-gray-700'
+                    }`}
+                  >
+                    <Icon className="h-4 w-4" />
+                    <span>{tab.label}</span>
+                  </button>
+                )
+              })}
+            </div>
+
+            <div className="p-6 max-h-96 overflow-y-auto">
+              {modalTab === 'transcript' && (
+                <div className="space-y-4">
+                  <h3 className="text-lg font-medium">Meeting Transcript</h3>
+                  <div className="space-y-3">
+                    <div>
+                      <h4 className="font-medium text-gray-900">Key Discussion Points:</h4>
+                      <ul className="mt-2 space-y-1 text-sm text-gray-600">
+                        <li>• Reviewed previous sprint achievements and challenges</li>
+                        <li>• Planned upcoming features for Q1 2024</li>
+                        <li>• Discussed resource allocation for new projects</li>
+                        <li>• Set priorities for the next two weeks</li>
+                      </ul>
+                    </div>
+                    <div>
+                      <h4 className="font-medium text-gray-900">Action Items:</h4>
+                      <ul className="mt-2 space-y-1 text-sm text-gray-600">
+                        <li>• John to finalize API documentation by Friday</li>
+                        <li>• Jane to prepare user stories for the new dashboard feature</li>
+                        <li>• Mike to coordinate with design team on UI mockups</li>
+                        <li>• Sarah to schedule follow-up meeting with stakeholders</li>
+                      </ul>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {modalTab === 'email' && (
+                <div className="space-y-4">
+                  <h3 className="text-lg font-medium">Follow-up Email</h3>
+                  <div className="bg-gray-50 p-4 rounded-lg">
+                    <p className="text-sm text-gray-700 mb-4">
+                      Subject: Follow-up on {selectedMeeting.title}
+                    </p>
+                    <p className="text-sm text-gray-700">
+                      Hi team,<br/><br/>
+                      Thank you for the productive {selectedMeeting.title} today. Here's a summary of our discussion and next steps:<br/><br/>
+                      <strong>Key Takeaways:</strong><br/>
+                      • Reviewed sprint progress and identified areas for improvement<br/>
+                      • Planned new features for the upcoming quarter<br/>
+                      • Allocated resources for priority projects<br/><br/>
+                      <strong>Action Items:</strong><br/>
+                      • John: API documentation by Friday<br/>
+                      • Jane: User stories for dashboard feature<br/>
+                      • Mike: UI mockup coordination<br/>
+                      • Sarah: Stakeholder follow-up meeting<br/><br/>
+                      Let's keep the momentum going!<br/><br/>
+                      Best regards,<br/>
+                      Team Lead
+                    </p>
+                  </div>
+                  <button
+                    onClick={() => showToast('Follow-up email generated successfully!')}
+                    className="bg-blue-600 text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-blue-700"
+                  >
+                    Generate Follow-up Email
+                  </button>
+                </div>
+              )}
+
+              {modalTab === 'posts' && (
+                <div className="space-y-6">
+                  <h3 className="text-lg font-medium">Social Media Posts</h3>
+                  
+                  <div className="space-y-4">
+                    <div className="border border-gray-200 rounded-lg p-4">
+                      <div className="flex items-center justify-between mb-3">
+                        <span className="text-sm font-medium text-gray-700">LinkedIn Post</span>
+                        <span className="text-xs text-gray-500">LinkedIn</span>
+                      </div>
+                      <p className="text-sm text-gray-700 mb-4">
+                        Great sprint planning session today! 🚀 Key takeaways: improved API performance, new dashboard features coming soon. Excited about the upcoming releases! #Agile #ProductDevelopment #TeamWork
+                      </p>
+                      <div className="flex space-x-2">
+                        <button
+                          onClick={() => showToast('LinkedIn post copied to clipboard!')}
+                          className="flex items-center space-x-2 px-3 py-1 bg-gray-100 text-gray-700 rounded text-sm hover:bg-gray-200"
+                        >
+                          <Copy className="h-3 w-3" />
+                          <span>Copy</span>
+                        </button>
+                        <button
+                          onClick={() => showToast('LinkedIn post published successfully!')}
+                          className="flex items-center space-x-2 px-3 py-1 bg-green-600 text-white rounded text-sm hover:bg-green-700"
+                        >
+                          <Send className="h-3 w-3" />
+                          <span>Post</span>
+                        </button>
+                      </div>
+                    </div>
+
+                    <div className="border border-gray-200 rounded-lg p-4">
+                      <div className="flex items-center justify-between mb-3">
+                        <span className="text-sm font-medium text-gray-700">Facebook Post</span>
+                        <span className="text-xs text-gray-500">Facebook</span>
+                      </div>
+                      <p className="text-sm text-gray-700 mb-4">
+                        Team update: Just wrapped up an amazing sprint planning! 🎉 Our new features are getting rave reviews. Thanks to our incredible team for making it happen! #TeamWork #Innovation #SprintPlanning
+                      </p>
+                      <div className="flex space-x-2">
+                        <button
+                          onClick={() => showToast('Facebook post copied to clipboard!')}
+                          className="flex items-center space-x-2 px-3 py-1 bg-gray-100 text-gray-700 rounded text-sm hover:bg-gray-200"
+                        >
+                          <Copy className="h-3 w-3" />
+                          <span>Copy</span>
+                        </button>
+                        <button
+                          onClick={() => showToast('Facebook post published successfully!')}
+                          className="flex items-center space-x-2 px-3 py-1 bg-green-600 text-white rounded text-sm hover:bg-green-700"
+                        >
+                          <Send className="h-3 w-3" />
+                          <span>Post</span>
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Create Automation Modal */}
+      {showCreateModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+          <div className="bg-white rounded-lg max-w-md w-full">
+            <div className="flex items-center justify-between p-6 border-b">
+              <h2 className="text-xl font-semibold">Create Automation</h2>
+              <button
+                onClick={() => setShowCreateModal(false)}
+                className="text-gray-400 hover:text-gray-600"
+              >
+                <X className="h-6 w-6" />
+              </button>
+            </div>
+            <div className="p-6 space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Name</label>
+                <input
+                  type="text"
+                  placeholder="e.g., Generate LinkedIn post"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Type</label>
+                <select className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                  <option>Generate post</option>
+                  <option>Send email</option>
+                  <option>Create summary</option>
+                </select>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Platform</label>
+                <select className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                  <option>LinkedIn</option>
+                  <option>Facebook</option>
+                  <option>Twitter</option>
+                </select>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Description</label>
+                <textarea
+                  placeholder="Describe how the post should be generated..."
+                  rows={3}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Example (Optional)</label>
+                <textarea
+                  placeholder="Provide an example of the desired output..."
+                  rows={3}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                />
+              </div>
+            </div>
+            <div className="flex justify-end space-x-3 p-6 border-t">
+              <button
+                onClick={() => setShowCreateModal(false)}
+                className="px-4 py-2 text-gray-700 border border-gray-300 rounded-md hover:bg-gray-50"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={() => {
+                  setShowCreateModal(false)
+                  showToast('Automation created successfully!')
+                }}
+                className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
+              >
+                Create
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Toast Notification */}
+      {toast && (
+        <div className="fixed top-4 right-4 z-50">
+          <div className={`px-4 py-2 rounded-md shadow-lg ${
+            toast.type === 'success' 
+              ? 'bg-green-500 text-white' 
+              : 'bg-red-500 text-white'
+          }`}>
+            {toast.message}
+          </div>
+        </div>
+      )}
     </div>
   )
 }
