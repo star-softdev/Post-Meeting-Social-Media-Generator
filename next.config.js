@@ -38,7 +38,7 @@ const nextConfig = {
   
   // Environment variables
   env: {
-    CUSTOM_KEY: process.env.CUSTOM_KEY,
+    // Add any custom environment variables here
   },
   
   // Image optimization
